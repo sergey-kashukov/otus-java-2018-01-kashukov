@@ -25,7 +25,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.9</maven.compiler.target>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <com.google.guava.version>23.0</com.google.guava.version>
         <my.variable>42</my.variable>
     </properties>
@@ -37,10 +37,8 @@
             <version>${com.google.guava.version}</version>
         </dependency>
     </dependencies>
-
-    <!--
     <build>
-        <finalName>${project.name}</finalName>
+        <finalName>hw_01_01</finalName>
 
         <plugins>
             <plugin>
@@ -84,6 +82,6 @@
 
         </plugins>
     </build>
-    -->
+
 
 </project>
