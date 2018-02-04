@@ -101,7 +101,7 @@
                         <lib>${java.home}/lib/jsse.jar</lib>
                     </libs>
                     <options>
-                        <option>-keep public class ru.otus.l011.Main</option>
+                        <option>-keep public class ru.otus.l011.Main { public static void main(java.lang.String[]); }</option>
                         <option>-dontwarn</option>
                     </options>
                 </configuration>
