@@ -1,6 +1,11 @@
 package ru.otus.l21;
 
+import org.apache.commons.lang.SerializationUtils;
+
+import java.io.Serializable;
 import java.lang.management.ManagementFactory;
+import java.util.HashMap;
+import java.lang.instrument.Instrumentation;
 
 /**
  * VM options -Xmx512m -Xms512m
@@ -14,40 +19,47 @@ import java.lang.management.ManagementFactory;
  */
 @SuppressWarnings({"RedundantStringConstructorCall", "InfiniteLoopStatement"})
 public class Main {
-    public static void main(String... args) throws InterruptedException {
+    public static void main(String... args) throws InterruptedException, InstantiationException, IllegalAccessException {
         System.out.println("pid: " + ManagementFactory.getRuntimeMXBean().getName());
-
-        int size = 20_000_000;
-
-        System.out.println("Starting the loop");
-        while (true) {
-            System.gc();
-            Thread.sleep(10);
-            Runtime runtime = Runtime.getRuntime();
-            long mem = runtime.totalMemory() - runtime.freeMemory();
-            System.out.println(mem);
-
-            Object[] array = new Object[size];
-
-            long mem2 = runtime.totalMemory() - runtime.freeMemory();
-            System.out.println((mem2 - mem)/size);
-
-            System.out.println("New array of size: " + array.length + " created");
-            for (int i = 0; i < size; i++) {
-                array[i] = new Object();
-                //array[i] = new String(""); //String pool
-                //array[i] = new String(new char[0]); //without String pool
-                //array[i] = new MyClass();
-            }
-            System.out.println("Created " + size + " objects.");
-
-
-            Thread.sleep(1000); //wait for 1 sec
-        }
+        MemUsage(new String(""));
+        MemUsage(new String("abcdef"));
+        MemUsage(new String(new char[0]));
+        MemUsage(new HashMap<String,String>());
+        MemUsage(new MyClass());
     }
 
-    private static class MyClass {
+    public static class MyClass implements Serializable {
         private int i = 0;
         private long l = 1;
     }
+
+    private static <T extends Serializable> void MemUsage(T obj) throws InterruptedException, IllegalAccessException, InstantiationException {
+        int size = 200_000;
+
+        System.gc();
+        Thread.sleep(10);
+        Runtime runtime = Runtime.getRuntime();
+        long mem =
+                runtime.totalMemory()
+                        - runtime.freeMemory();
+
+
+        Object[] array = new Object[size];
+
+
+        for (int i = 0; i < size; i++) {
+            array[i] = SerializationUtils.clone(obj);
+        }
+
+        System.gc();
+        Thread.sleep(10);
+
+        System.out.println("Created " + size + " objects.");
+        long mem2 = runtime.totalMemory()
+                        - runtime.freeMemory();
+
+        System.out.println("Estimated object size is " + (mem2 - mem)/size);
+
+    }
 }
+
