@@ -34,10 +34,10 @@ public class Main {
     }
 
     private static <T extends Serializable> void MemUsage(T obj) throws InterruptedException, IllegalAccessException, InstantiationException {
-        int size = 200_000;
+        int size = 20_000_000;
 
         System.gc();
-        Thread.sleep(10);
+        Thread.sleep(100);
         Runtime runtime = Runtime.getRuntime();
         long mem =
                 runtime.totalMemory()
@@ -54,11 +54,13 @@ public class Main {
         System.gc();
         Thread.sleep(10);
 
-        System.out.println("Created " + size + " objects.");
+        //System.out.println("Created " + size + " objects.");
         long mem2 = runtime.totalMemory()
                         - runtime.freeMemory();
 
-        System.out.println("Estimated object size is " + (mem2 - mem)/size);
+        System.out.println("Estimated object size is " + (mem2 - mem)/array.length);
+
+        Thread.sleep(1000);
 
     }
 }
