@@ -1,11 +1,7 @@
 package ru.otus.l21;
 
-import org.apache.commons.lang.SerializationUtils;
-
-import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
-import java.lang.instrument.Instrumentation;
 
 /**
  * VM options -Xmx512m -Xms512m
@@ -19,49 +15,152 @@ import java.lang.instrument.Instrumentation;
  */
 @SuppressWarnings({"RedundantStringConstructorCall", "InfiniteLoopStatement"})
 public class Main {
-    public static void main(String... args) throws InterruptedException, InstantiationException, IllegalAccessException {
+    public static void main(String... args) throws InterruptedException {
         System.out.println("pid: " + ManagementFactory.getRuntimeMXBean().getName());
-        MemUsage(new String(""));
-        MemUsage(new String("abcdef"));
-        MemUsage(new String(new char[0]));
-        MemUsage(new HashMap<String,String>());
-        MemUsage(new MyClass());
+
+        int size = 20_000_000;
+
+        memUsageEmptyObject(size);
+        memUsageEmptyString(size);
+        memUsageNonEmptyString(size);
+        memUsageEmptyStringChar(size);
+        memUsageEmptyHashMap(size);
+        memUsageMyClass(size);
+
     }
 
-    public static class MyClass implements Serializable {
+    private static class MyClass {
         private int i = 0;
         private long l = 1;
     }
 
-    private static <T extends Serializable> void MemUsage(T obj) throws InterruptedException, IllegalAccessException, InstantiationException {
-        int size = 20_000_000;
-
-        System.gc();
-        Thread.sleep(100);
-        Runtime runtime = Runtime.getRuntime();
-        long mem =
-                runtime.totalMemory()
-                        - runtime.freeMemory();
-
-
-        Object[] array = new Object[size];
-
-
-        for (int i = 0; i < size; i++) {
-            array[i] = SerializationUtils.clone(obj);
-        }
-
+    private static void memUsageEmptyObject(int arraysize) throws InterruptedException {
         System.gc();
         Thread.sleep(10);
+        Runtime runtime = Runtime.getRuntime();
+        long mem = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println(mem);
 
-        //System.out.println("Created " + size + " objects.");
-        long mem2 = runtime.totalMemory()
-                        - runtime.freeMemory();
+        Object[] array = new Object[arraysize];
 
-        System.out.println("Estimated object size is " + (mem2 - mem)/array.length);
+        System.out.println("New array of size: " + array.length + " created");
+        for (int i = 0; i < arraysize; i++) {
+            array[i] = new Object();
+        }
 
-        Thread.sleep(1000);
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
 
+        System.out.println("Object has estimated size of " + (mem2 - mem)/arraysize);
+        System.out.println();
+
+        Thread.sleep(1000); //wait for 1 sec
+    }
+
+    private static void memUsageEmptyString(int arraysize) throws InterruptedException {
+        System.gc();
+        Thread.sleep(10);
+        Runtime runtime = Runtime.getRuntime();
+        long mem = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println(mem);
+
+        Object[] array = new Object[arraysize];
+
+
+
+        System.out.println("New array of size: " + array.length + " created");
+        for (int i = 0; i < arraysize; i++) {
+            array[i] = new String("");
+        }
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
+
+        System.out.println("Empty string with pool usage has estimated size of " + (mem2 - mem)/arraysize);
+        System.out.println();
+
+        Thread.sleep(1000); //wait for 1 sec
+    }
+
+    private static void memUsageNonEmptyString(int arraysize) throws InterruptedException {
+        System.gc();
+        Thread.sleep(10);
+        Runtime runtime = Runtime.getRuntime();
+        long mem = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println(mem);
+
+        Object[] array = new Object[arraysize];
+
+        System.out.println("New array of size: " + array.length + " created");
+        for (int i = 0; i < arraysize; i++) {
+            array[i] = new String("abcdef");
+        }
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
+
+        System.out.println("Not empty string has estimated size of " + (mem2 - mem)/arraysize);
+        System.out.println();
+
+        Thread.sleep(1000); //wait for 1 sec
+    }
+
+    private static void memUsageEmptyStringChar(int arraysize) throws InterruptedException {
+        System.gc();
+        Thread.sleep(10);
+        Runtime runtime = Runtime.getRuntime();
+        long mem = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println(mem);
+
+        Object[] array = new Object[arraysize];
+
+        System.out.println("New array of size: " + array.length + " created");
+        for (int i = 0; i < arraysize; i++) {
+            array[i] = new String(new char[0]);
+        }
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
+
+        System.out.println("Empty string without pool usage has estimated size of " + (mem2 - mem)/arraysize);
+        System.out.println();
+
+        Thread.sleep(1000); //wait for 1 sec
+    }
+
+    private static void memUsageEmptyHashMap(int arraysize) throws InterruptedException {
+        System.gc();
+        Thread.sleep(10);
+        Runtime runtime = Runtime.getRuntime();
+        long mem = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println(mem);
+
+        Object[] array = new Object[arraysize];
+
+        System.out.println("New array of size: " + array.length + " created");
+        for (int i = 0; i < arraysize; i++) {
+            array[i] = new HashMap<String,String>();
+        }
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
+
+        System.out.println("Empty hash map has estimated size of " + (mem2 - mem)/arraysize);
+        System.out.println();
+
+        Thread.sleep(1000); //wait for 1 sec
+    }
+
+    private static void memUsageMyClass(int arraysize) throws InterruptedException {
+        System.gc();
+        Thread.sleep(10);
+        Runtime runtime = Runtime.getRuntime();
+        long mem = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println(mem);
+
+        Object[] array = new Object[arraysize];
+
+
+        System.out.println("New array of size: " + array.length + " created");
+        for (int i = 0; i < arraysize; i++) {
+            array[i] = new MyClass();
+        }
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
+
+        System.out.println("MyClass object has estimated size of " + (mem2 - mem)/arraysize);
+        System.out.println();
+
+        Thread.sleep(1000); //wait for 1 sec
     }
 }
-
